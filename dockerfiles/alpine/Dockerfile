@@ -44,6 +44,10 @@ RUN mkdir -p /var/log/caddy /var/lib/caddy && \
     chown -R 1001:0 /var/log/caddy /var/lib/caddy && \
     chmod -R ug+rwX /var/log/caddy /var/lib/caddy
 
+# Copy default Caddyfile configured for non-privileged ports
+# Users can override this by mounting their own Caddyfile at /etc/caddy/Caddyfile
+COPY --chown=1001:0 --chmod=664 config/Caddyfile /etc/caddy/Caddyfile
+
 # Expose non-privileged ports (rootless containers cannot bind to ports < 1024)
 # Configure these ports in your Caddyfile with http_port and https_port directives
 # 8080: HTTP, 8443: HTTPS (TCP), 8443/udp: HTTP/3 (QUIC), 2019: Admin API

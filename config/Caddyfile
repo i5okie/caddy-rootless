@@ -1,0 +1,74 @@
+# Default Caddyfile for Caddy Rootless
+# Uses non-privileged ports for rootless/OpenShift compatibility
+#
+# To customize: mount your own Caddyfile at /etc/caddy/Caddyfile
+# Example: docker run -v ./my-Caddyfile:/etc/caddy/Caddyfile:ro caddy-rootless
+
+{
+	# Non-privileged ports (rootless containers cannot bind to ports < 1024)
+	http_port 8080
+	https_port 8443
+
+	# Admin API - disabled by default for security
+	admin off
+
+	# Auto-HTTPS configuration
+	# Uncomment and set your email for Let's Encrypt certificates
+	# email your-email@example.com
+}
+
+# Default site - simple welcome page with health check
+:8080 {
+	# Health check endpoint for Kubernetes/OpenShift probes
+	respond /healthz 200 {
+		body "OK"
+	}
+
+	# Default welcome page
+	respond / 200 {
+		body `<!DOCTYPE html>
+<html>
+<head>
+	<title>Caddy Rootless</title>
+	<style>
+		body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+		h1 { color: #00BCD4; }
+		code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+		.info { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0; }
+	</style>
+</head>
+<body>
+	<h1>Caddy Rootless Container</h1>
+	<p>Your Caddy server is running successfully in rootless mode!</p>
+
+	<div class="info">
+		<h3>Configuration</h3>
+		<p>This is the default Caddyfile. To customize, mount your own configuration:</p>
+		<pre><code>docker run -v ./my-Caddyfile:/etc/caddy/Caddyfile:ro caddy-rootless</code></pre>
+		<p>Or in Kubernetes/OpenShift, use a ConfigMap.</p>
+	</div>
+
+	<div class="info">
+		<h3>Ports</h3>
+		<ul>
+			<li>HTTP: 8080 (non-privileged)</li>
+			<li>HTTPS: 8443 (non-privileged)</li>
+		</ul>
+	</div>
+
+	<div class="info">
+		<h3>Health Check</h3>
+		<p>Use <code>/healthz</code> for liveness and readiness probes.</p>
+	</div>
+
+	<p><small>All Caddy functionality is created by the <a href="https://caddyserver.com/">Caddy Project</a>.</small></p>
+</body>
+</html>`
+		close
+	}
+
+	# Catch-all for other paths
+	respond * 404 {
+		body "Not Found"
+	}
+}
