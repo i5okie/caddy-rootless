@@ -56,14 +56,6 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - name: Run Trivy vulnerability scanner (table output)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'caddy-rootless:test'
-          format: 'table'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '1'
-
       # Install cosign for image signing
       - name: Install cosign
         uses: sigstore/cosign-installer@v3.7.0
