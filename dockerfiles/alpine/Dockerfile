@@ -39,6 +39,11 @@ RUN chown -R 1001:0 /data /config /etc/caddy /usr/share/caddy /srv && \
 # Ensure Caddy binary is executable by user and group
 RUN chmod ug+x /usr/bin/caddy
 
+# Remove file capabilities set by base image (incompatible with OpenShift)
+# OpenShift's Security Context Constraints don't allow capabilities on binaries
+# This prevents "operation not permitted" errors in OpenShift
+RUN setcap -r /usr/bin/caddy || true
+
 # Create additional directories that may be needed for logging and state
 RUN mkdir -p /var/log/caddy /var/lib/caddy && \
     chown -R 1001:0 /var/log/caddy /var/lib/caddy && \
